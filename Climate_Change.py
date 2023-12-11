@@ -46,7 +46,8 @@ def read_and_clean_world_bank_data(filename):
     df_transposed = df_transposed.drop(0)
 
     # Rename the columns for better readability
-    df_transposed = df_transposed.rename(columns={'Country Name': 'Year'}).reset_index(drop=True)
+    df_transposed = df_transposed.rename(columns={'Country Name': 'Year'})\
+    .reset_index(drop=True)
 
     return df_transposed
 
@@ -76,7 +77,8 @@ def reshape_world_bank_data(filename):
     df_cleaned = drop_empty_columns(df)
 
     # Melt the DataFrame to reshape it
-    df_reshaped = pd.melt(df_cleaned, id_vars=['Country Name', 'Country Code', 'Indicator Name', 'Indicator Code'],
+    df_reshaped = pd.melt(df_cleaned, id_vars=['Country Name', 'Country Code', 
+                                         'Indicator Name', 'Indicator Code'],
                           var_name='Year', value_name='Value')
 
     return df_reshaped
@@ -90,8 +92,10 @@ access_to_electricity_df_reshaped.head()
 
 
 # Merge dataframes on 'Country Name' and 'Year'
-merged_df = pd.merge(co2_emissions_df_reshaped, access_to_electricity_df_reshaped, 
-                     on=['Country Name', 'Year'], suffixes=('_co2', '_electricity'))
+merged_df = pd.merge(co2_emissions_df_reshaped, 
+                      access_to_electricity_df_reshaped, 
+                      on=['Country Name', 'Year'], 
+                      suffixes=('_co2', '_electricity'))
 
 # Drop rows with NaN values
 merged_df = merged_df.dropna()
@@ -112,17 +116,21 @@ summary_stats = selected_df.describe()
 
 # Convert 'Value_co2' and 'Value_electricity' to numeric data types
 selected_df['Value_co2'] = pd.to_numeric(selected_df['Value_co2'])
-selected_df['Value_electricity'] = pd.to_numeric(selected_df['Value_electricity'])
+selected_df['Value_electricity'] = pd.to_numeric \
+                           (selected_df['Value_electricity'])
 # Convert 'Year' column to numeric
 selected_df['Year'] = pd.to_numeric(selected_df['Year'], errors='coerce')
 
 # Convert 'Value_co2' and 'Value_electricity' columns to numeric
-selected_df[['Value_co2', 'Value_electricity']] = selected_df[['Value_co2', 'Value_electricity']].apply(pd.to_numeric, errors='coerce')
+selected_df[['Value_co2', 'Value_electricity']] = selected_df[['Value_co2', 
+                 'Value_electricity']].apply(pd.to_numeric, errors='coerce')
 print(selected_df.dtypes)
 
 # Now, calculate mean and median, excluding non-numeric columns
-mean_values = selected_df.groupby('Country Name')[['Value_co2', 'Value_electricity']].mean()
-median_values = selected_df.groupby('Country Name')[['Value_co2', 'Value_electricity']].median()
+mean_values = selected_df.groupby('Country Name')[['Value_co2', 
+                                                   'Value_electricity']].mean()
+median_values = selected_df.groupby('Country Name') \
+             [['Value_co2', 'Value_electricity']].median()
 
 # Display the results
 print("Summary Statistics:")
@@ -150,18 +158,22 @@ heatmap_data_china = china_data[['Value_co2', 'Value_electricity']]
 correlation_matrix_china = heatmap_data_china.corr()
 
 # Print the correlation value
-correlation_value_china = correlation_matrix_china.loc['Value_co2', 'Value_electricity']
+correlation_value_china = correlation_matrix_china.loc['Value_co2', 
+                                                       'Value_electricity']
 print(f'Correlation Value for China: {correlation_value_china}')
 
 # Create a heatmap for China
 plt.figure(figsize=(8, 6))
-sns.heatmap(correlation_matrix_china, annot=True, cmap='coolwarm', fmt=".2f", linewidths=.5)
-plt.title('Correlation Heatmap for CO2 Emissions and Access to Electricity in China')
+sns.heatmap(correlation_matrix_china, annot=True, cmap='coolwarm', fmt=".2f", 
+            linewidths=.5)
+plt.title('Correlation Heatmap for CO2 Emissions and Access to \
+          Electricity in China')
 plt.show()
 
 # Scatter plot with regression line
 plt.figure(figsize=(12, 6))
-sns.regplot(x='Value_electricity', y='Value_co2', data=selected_df, scatter_kws={'s': 50}, line_kws={'color': 'red'})
+sns.regplot(x='Value_electricity', y='Value_co2', data=selected_df, 
+            scatter_kws={'s': 50}, line_kws={'color': 'red'})
 plt.title('Relationship between Access to Electricity and CO2 Emissions')
 plt.xlabel('Access to Electricity (% of Population)')
 plt.ylabel('CO2 Emissions (kt)')
@@ -177,7 +189,8 @@ heatmap_correlation = heatmap_data.corr()
 
 # Create a heatmap
 plt.figure(figsize=(8, 6))
-sns.heatmap(heatmap_correlation, annot=True, cmap='coolwarm', fmt=".2f", linewidths=.5)
+sns.heatmap(heatmap_correlation, annot=True, cmap='coolwarm', fmt=".2f", 
+            linewidths=.5)
 plt.title('Correlation Heatmap: CO2 Emissions and Access to Electricity')
 plt.show()
 
@@ -189,12 +202,17 @@ print(correlation_matrix)
 
 
 # Filter data for the selected countries and years (2015-2020)
-selected_countries_years_data = selected_df[(selected_df['Country Name'].isin(selected_countries)) & (selected_df['Year'] >= 2015) & (selected_df['Year'] <= 2021)]
+selected_countries_years_data = selected_df[(selected_df['Country Name']
+                     .isin(selected_countries)) & (selected_df['Year'] >= 2015)
+                                            & (selected_df['Year'] <= 2021)]
 
 # Bar graph for average CO2 emissions and access to electricity by country
 plt.figure(figsize=(12, 8))
-sns.barplot(x='Country Name', y='Value_electricity', data=selected_countries_years_data, color='green', label='Access to Electricity')
-plt.title('Comparison of CO2 Emissions and Access to Electricity for Selected Countries (2015-2021)')
+sns.barplot(x='Country Name', y='Value_electricity', 
+            data=selected_countries_years_data, color='green', label= 
+            'Access to Electricity')
+plt.title('Comparison of CO2 Emissions and Access to Electricity \
+           for Selected Countries (2015-2021)')
 plt.xlabel('Country')
 plt.ylabel('Average Value')
 plt.legend()
@@ -204,7 +222,9 @@ plt.show()
 
 # Bar graph for average CO2 emissions and access to electricity by country
 plt.figure(figsize=(12, 8))
-sns.barplot(x='Country Name', y='Value_co2', data=selected_countries_years_data, color='blue', label='CO2 Emissions')
+sns.barplot(x='Country Name', y='Value_co2', 
+            data=selected_countries_years_data, color='blue', 
+            label='CO2 Emissions')
 plt.title('Comparison of CO2 Emissions for Selected Countries (2015-2021)')
 plt.xlabel('Country')
 plt.ylabel('Average Value')
